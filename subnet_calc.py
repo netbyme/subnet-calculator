@@ -39,3 +39,42 @@ subnets = ["192.168.1.0/24", "10.0.0.0/8", "172.16.0.0/16", "192.168.1.0/26"]
 for subnet in subnets:
     calculate_subnet(subnet)
     print()
+# Part 2 - Interactive input and split network into subnets
+def split_network(ip_with_prefix, num_subnets):
+    network = ipaddress.IPv4Network(ip_with_prefix, strict=False)
+    subnets = list(network.subnets(prefixlen_diff=num_subnets.bit_length()))
+    
+    print(f"\n=== Splitting {ip_with_prefix} into {len(subnets)} subnets ===\n")
+    
+    for i, subnet in enumerate(subnets[:8], start=1):
+        print(f"Subnet {i}:")
+        print(f"  Network   : {subnet.network_address}")
+        print(f"  Broadcast : {subnet.broadcast_address}")
+        print(f"  First Host: {subnet.network_address + 1}")
+        print(f"  Last Host : {subnet.broadcast_address - 1}")
+        print(f"  Hosts     : {subnet.num_addresses - 2}")
+        print()
+
+def interactive_mode():
+    print("\n=== Subnet Calculator — Interactive Mode ===\n")
+    
+    while True:
+        ip_input = input("Enter IP/prefix (e.g. 192.168.1.0/24) or 'quit' to exit: ")
+        
+        if ip_input.lower() == "quit":
+            print("Goodbye!")
+            break
+        
+        try:
+            calculate_subnet(ip_input)
+            
+            split = input("\nSplit into subnets? (y/n): ")
+            if split.lower() == "y":
+                num = int(input("How many subnets? (2/4/8): "))
+                split_network(ip_input, num)
+        
+        except ValueError as e:
+            print(f"Invalid input: {e}")
+
+# run interactive mode
+interactive_mode()
